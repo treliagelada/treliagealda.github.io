@@ -164,21 +164,24 @@ cargo install cargo-vcpkg</code></pre>
         <p>Before building, you can customize various aspects of your RustDesk client:</p>
         
         <h4>1. Modify Configuration Files</h4>
-        <p>Edit <code>src/rendezvous_messages.rs</code> or <code>Cargo.toml</code> to customize:</p>
+        <p>Customize the application by editing these files:</p>
         <ul>
-            <li>Application name</li>
-            <li>Default server addresses</li>
-            <li>Company information</li>
+            <li><strong>Application name</strong>: Edit <code>Cargo.toml</code> (change the package name)</li>
+            <li><strong>Default server addresses</strong>: Edit configuration in source files (see below)</li>
+            <li><strong>Company information</strong>: Edit <code>Cargo.toml</code> (authors, description fields)</li>
         </ul>
 
         <h4>2. Custom Server Configuration</h4>
-        <p>To point to your own RustDesk server, modify the default server settings:</p>
-        <pre><code>// In src/common.rs or configuration files
-// Change the default relay server address
+        <p>To point to your own RustDesk server, look for server configuration in the source code. You may need to modify constants like:</p>
+        <pre><code>// Example: Search for RENDEZVOUS_SERVERS in the codebase
+// Typically found in src files related to networking/server connection
 pub const RENDEZVOUS_SERVERS: &[&str] = &[
     "your-server.com",
     // Add your custom server addresses
 ];</code></pre>
+        <div class="note">
+            <strong>Note:</strong> The exact file locations may vary by version. Use <code>grep -r "RENDEZVOUS" src/</code> to find the relevant configuration files.
+        </div>
 
         <h4>3. Customize Icons and Resources</h4>
         <ul>
@@ -207,7 +210,7 @@ pub const RENDEZVOUS_SERVERS: &[&str] = &[
         <h3>Using NSIS (Nullsoft Scriptable Install System)</h3>
         <ol>
             <li>Install NSIS from <a href="https://nsis.sourceforge.io/" target="_blank">https://nsis.sourceforge.io/</a></li>
-            <li>Navigate to the <code>flutter\nsis</code> directory</li>
+            <li>Navigate to the <code>flutter/nsis</code> directory (on Windows: <code>flutter\nsis</code>)</li>
             <li>Run the NSIS script:
                 <pre><code>makensis rustdesk.nsi</code></pre>
             </li>
@@ -295,7 +298,10 @@ pub const RENDEZVOUS_SERVERS: &[&str] = &[
 
         <h2>Keeping Your Build Updated</h2>
         <p>To update your custom build with the latest RustDesk changes:</p>
-        <pre><code># Update your local repository
+        <pre><code># Check the default branch name first
+git branch -r
+
+# Update your local repository (use 'master' or 'main' depending on the repo)
 git pull origin master
 
 # Reapply your customizations (if needed)
