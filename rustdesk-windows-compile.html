@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #7f8c8d;
+        }
+        code {
+            background-color: #f8f8f8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        pre code {
+            background-color: transparent;
+            color: #ecf0f1;
+            padding: 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 12px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 12px;
+            margin: 15px 0;
+        }
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <title>How to Compile RustDesk Custom Windows Client</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>How to Compile Your Own RustDesk Custom Windows Client</h1>
+        
+        <p>This guide provides step-by-step instructions for compiling a custom RustDesk Windows client from source. RustDesk is an open-source remote desktop software written in Rust.</p>
+
+        <h2>Prerequisites</h2>
+        
+        <h3>1. Install Development Tools</h3>
+        <ul>
+            <li><strong>Visual Studio 2022</strong> with C++ development tools
+                <ul>
+                    <li>Download from <a href="https://visualstudio.microsoft.com/" target="_blank">https://visualstudio.microsoft.com/</a></li>
+                    <li>During installation, select "Desktop development with C++"</li>
+                </ul>
+            </li>
+            <li><strong>Rust toolchain</strong>
+                <ul>
+                    <li>Download and install from <a href="https://rustup.rs/" target="_blank">https://rustup.rs/</a></li>
+                    <li>Run the installer and follow the prompts</li>
+                </ul>
+            </li>
+            <li><strong>Git</strong> for version control
+                <ul>
+                    <li>Download from <a href="https://git-scm.com/" target="_blank">https://git-scm.com/</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>2. Install Required Dependencies</h3>
+        <p>Open PowerShell or Command Prompt as Administrator and install the following:</p>
+        
+        <pre><code># Install LLVM (required for compilation)
+# Download from https://releases.llvm.org/download.html
+# Install version 15.0 or later
+
+# Install vcpkg for C++ dependencies
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg integrate install</code></pre>
+
+        <h3>3. Install Sciter (for GUI)</h3>
+        <div class="note">
+            <strong>Note:</strong> RustDesk uses Sciter for its GUI. You'll need to download the Sciter SDK.
+        </div>
+        <pre><code># Download Sciter SDK from https://sciter.com/
+# Extract to a known location (e.g., C:\sciter-sdk)</code></pre>
+
+        <h2>Step 1: Clone the RustDesk Repository</h2>
+        <pre><code>git clone https://github.com/rustdesk/rustdesk.git
+cd rustdesk</code></pre>
+
+        <h2>Step 2: Set Environment Variables</h2>
+        <p>Set the following environment variables before building:</p>
+        <pre><code># PowerShell
+$env:VCPKG_ROOT = "C:\path\to\vcpkg"
+$env:LLVM_HOME = "C:\Program Files\LLVM"
+$env:SCITER_SDK = "C:\path\to\sciter-sdk"
+
+# Or set them permanently in System Environment Variables</code></pre>
+
+        <h2>Step 3: Install Rust Dependencies</h2>
+        <pre><code># Update Rust to the latest stable version
+rustup update stable
+
+# Add the Windows MSVC target
+rustup target add x86_64-pc-windows-msvc
+
+# Install cargo-vcpkg for dependency management
+cargo install cargo-vcpkg</code></pre>
+
+        <h2>Step 4: Configure Your Custom Build</h2>
+        
+        <h3>Customize Branding and Settings</h3>
+        <p>Before building, you can customize various aspects of your RustDesk client:</p>
+        
+        <h4>1. Modify Configuration Files</h4>
+        <p>Edit <code>src/rendezvous_messages.rs</code> or <code>Cargo.toml</code> to customize:</p>
+        <ul>
+            <li>Application name</li>
+            <li>Default server addresses</li>
+            <li>Company information</li>
+        </ul>
+
+        <h4>2. Custom Server Configuration</h4>
+        <p>To point to your own RustDesk server, modify the default server settings:</p>
+        <pre><code>// In src/common.rs or configuration files
+// Change the default relay server address
+pub const RENDEZVOUS_SERVERS: &[&str] = &[
+    "your-server.com",
+    // Add your custom server addresses
+];</code></pre>
+
+        <h4>3. Customize Icons and Resources</h4>
+        <ul>
+            <li>Replace icons in the <code>res/</code> directory</li>
+            <li>Modify <code>icon.ico</code> for the application icon</li>
+            <li>Update branding images and logos</li>
+        </ul>
+
+        <h2>Step 5: Build the Windows Client</h2>
+        
+        <h3>Debug Build (for testing)</h3>
+        <pre><code>cargo build</code></pre>
+
+        <h3>Release Build (optimized)</h3>
+        <pre><code>cargo build --release</code></pre>
+
+        <div class="tip">
+            <strong>Tip:</strong> The release build will be much faster and smaller. Use this for distribution.
+        </div>
+
+        <h3>Build with Inline Plugin Support</h3>
+        <pre><code>cargo build --release --features inline</code></pre>
+
+        <h2>Step 6: Build the Installer (Optional)</h2>
+        
+        <h3>Using NSIS (Nullsoft Scriptable Install System)</h3>
+        <ol>
+            <li>Install NSIS from <a href="https://nsis.sourceforge.io/" target="_blank">https://nsis.sourceforge.io/</a></li>
+            <li>Navigate to the <code>flutter\nsis</code> directory</li>
+            <li>Run the NSIS script:
+                <pre><code>makensis rustdesk.nsi</code></pre>
+            </li>
+        </ol>
+
+        <h3>Using Inno Setup</h3>
+        <ol>
+            <li>Install Inno Setup from <a href="https://jrsoftware.org/isinfo.php" target="_blank">https://jrsoftware.org/isinfo.php</a></li>
+            <li>Open the <code>.iss</code> script file in the repository</li>
+            <li>Compile the installer using Inno Setup</li>
+        </ol>
+
+        <h2>Step 7: Locate Your Built Binaries</h2>
+        <p>After a successful build, your binaries will be located at:</p>
+        <ul>
+            <li><strong>Debug build:</strong> <code>target\debug\rustdesk.exe</code></li>
+            <li><strong>Release build:</strong> <code>target\release\rustdesk.exe</code></li>
+        </ul>
+
+        <h2>Common Build Issues and Solutions</h2>
+
+        <h3>Issue: LLVM Not Found</h3>
+        <div class="warning">
+            <strong>Error:</strong> "Could not find LLVM"
+        </div>
+        <p><strong>Solution:</strong> Ensure LLVM is installed and the <code>LLVM_HOME</code> environment variable points to the installation directory.</p>
+        <pre><code>$env:LLVM_HOME = "C:\Program Files\LLVM"</code></pre>
+
+        <h3>Issue: Sciter Library Not Found</h3>
+        <div class="warning">
+            <strong>Error:</strong> "Cannot find sciter DLL"
+        </div>
+        <p><strong>Solution:</strong> Set the <code>SCITER_SDK</code> environment variable to point to your Sciter SDK installation.</p>
+
+        <h3>Issue: Missing C++ Build Tools</h3>
+        <div class="warning">
+            <strong>Error:</strong> "link.exe not found" or "MSVC not found"
+        </div>
+        <p><strong>Solution:</strong> Install Visual Studio 2022 with C++ development tools, or install the standalone Build Tools for Visual Studio.</p>
+
+        <h3>Issue: Out of Memory During Compilation</h3>
+        <p><strong>Solution:</strong> Build with fewer parallel jobs:</p>
+        <pre><code>cargo build --release -j 2</code></pre>
+
+        <h2>Advanced Customization Options</h2>
+
+        <h3>1. Custom Encryption Keys</h3>
+        <p>Generate your own encryption keys for enhanced security:</p>
+        <pre><code># Generate new keypair
+# Modify src/common.rs with your custom keys</code></pre>
+
+        <h3>2. Remove Update Checker</h3>
+        <p>To disable automatic updates (useful for corporate deployments):</p>
+        <ul>
+            <li>Comment out update-related code in <code>src/ui.rs</code></li>
+            <li>Remove update server calls</li>
+        </ul>
+
+        <h3>3. White-Label Deployment</h3>
+        <p>For complete rebranding:</p>
+        <ul>
+            <li>Change all references to "RustDesk" in the source code</li>
+            <li>Replace all icons and images</li>
+            <li>Modify the application GUID in installer scripts</li>
+            <li>Update license and copyright information</li>
+        </ul>
+
+        <h2>Testing Your Custom Build</h2>
+        <ol>
+            <li>Run the executable: <code>.\target\release\rustdesk.exe</code></li>
+            <li>Verify custom branding appears correctly</li>
+            <li>Test connection to your custom server (if configured)</li>
+            <li>Verify all features work as expected</li>
+            <li>Test on a clean Windows installation</li>
+        </ol>
+
+        <h2>Distribution</h2>
+        <p>Once you've built and tested your custom client:</p>
+        <ul>
+            <li>Create an installer using NSIS or Inno Setup</li>
+            <li>Sign your executable with a code signing certificate</li>
+            <li>Document any custom configuration for your users</li>
+            <li>Consider creating a deployment package with configuration files</li>
+        </ul>
+
+        <h2>Keeping Your Build Updated</h2>
+        <p>To update your custom build with the latest RustDesk changes:</p>
+        <pre><code># Update your local repository
+git pull origin master
+
+# Reapply your customizations (if needed)
+# Rebuild
+cargo build --release</code></pre>
+
+        <div class="tip">
+            <strong>Pro Tip:</strong> Keep your customizations in a separate branch or fork to easily merge upstream updates.
+        </div>
+
+        <h2>Additional Resources</h2>
+        <ul>
+            <li><a href="https://github.com/rustdesk/rustdesk" target="_blank">RustDesk Official Repository</a></li>
+            <li><a href="https://rustdesk.com/docs/" target="_blank">RustDesk Documentation</a></li>
+            <li><a href="https://rustdesk.com/server/" target="_blank">RustDesk Server Setup</a></li>
+            <li><a href="https://doc.rust-lang.org/book/" target="_blank">The Rust Programming Language Book</a></li>
+        </ul>
+
+        <h2>Legal Notice</h2>
+        <div class="note">
+            <strong>Important:</strong> RustDesk is licensed under AGPL-3.0. Ensure you comply with the license terms when distributing your custom build. If you modify and distribute RustDesk, you must:
+            <ul>
+                <li>Make your source code available</li>
+                <li>Include the original license</li>
+                <li>Document your changes</li>
+                <li>Use a compatible license</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 30px 0;">
+        <p style="text-align: center; color: #7f8c8d; font-size: 0.9em;">
+            Last updated: December 2025 | 
+            <a href="index.html">Back to Home</a>
+        </p>
+    </div>
+</body>
+
+</html>
